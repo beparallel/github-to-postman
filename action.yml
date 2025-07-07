@@ -1,8 +1,9 @@
 name: 'GitHub to Postman'
 description: 'This actions allow us to sync postman collection with swagger'
 author: 'Parallel'
-icon: 'activity'
-color: 'purple'
+branding:
+  icon: 'activity'
+  color: 'purple'
 inputs:
   postman-api-key:
     required: true

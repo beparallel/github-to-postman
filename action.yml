@@ -1,0 +1,29 @@
+name: 'Postman'
+description: 'This actions allow us to sync postman collection with swagger'
+author: 'Parallel'
+inputs:
+  postman-api-key:
+    required: true
+    description: 'The Postman Api key'
+  workspace-id:
+    required: true
+    description: 'The Workspace Id the collection is added to'
+  githubToken:
+    required: true
+    description: 'A token to access github'
+  githubRepo:
+    required: true
+  githubPath:
+    required: true
+  githubOwner:
+    required: true
+  githubRef:
+    required: true
+  sync:
+    required: true
+    description: 'Either equal to collection or environment'
+  postmanEnvSecret1:
+    required: false
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

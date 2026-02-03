@@ -21,8 +21,12 @@ async function run(): Promise<void> {
     const sync: string = core.getInput('sync')
     const githubRef: string = core.getInput('githubRef') ?? 'main'
     const postmanEnvSecret1: string = core.getInput('postmanEnvSecret1')
+    const postmanEnvSecret2: string = core.getInput('postmanEnvSecret2')
+    const baseUrlKeyName: string = core.getInput('baseUrlKeyName')
+    
     const postmanEnvSecrets = {
-      postmanEnvSecret1
+      postmanEnvSecret1,
+      postmanEnvSecret2
     }
 
     core.setOutput('workspace', workspace)
@@ -34,7 +38,12 @@ async function run(): Promise<void> {
       githubPath,
       githubRef
     })
-    const jsonfileContent = JSON.parse(stringFileContent)
+
+    // replace baseUrl with baseUrlKeyName in stringFileContent
+    const updatedStringFileContent = baseUrlKeyName
+      ? stringFileContent.replace(/{{baseUrl}}/g, `{{${baseUrlKeyName}}}`)
+      : stringFileContent
+    const jsonfileContent = JSON.parse(updatedStringFileContent)
 
     if (sync === SyncPostman.collection) {
       await syncCollectionWithPostman({

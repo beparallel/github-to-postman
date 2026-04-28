@@ -27,6 +27,15 @@ inputs:
     description: 'Either equal to collection or environment'
   postmanEnvSecret1:
     required: false
+    description: 'Optional secret value injected into the synced environment'
+  postmanEnvSecret2:
+    required: false
+    description: 'Optional secret value injected into the synced environment'
+  baseUrlKeyName:
+    required: false
+    description:
+      'If set, every {{baseUrl}} placeholder in the source file is rewritten to
+      {{<baseUrlKeyName>}} before being pushed to Postman'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'dist/index.js'

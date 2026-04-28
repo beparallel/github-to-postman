@@ -1,6 +1,6 @@
 {
   "name": "@parallel/github-to-postman",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "description": "Sync Postman collections from GitHub",
   "packageManager": "pnpm@10.1.0",

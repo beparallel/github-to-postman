@@ -82,7 +82,7 @@ providing secrets that should be injected into the environment:
 ## Development
 
 This project uses **pnpm** (pinned via `packageManager` in `package.json`) and
-ships a bundled `dist/index.js` consumed by the action runtime (Node 20).
+ships a bundled `dist/index.js` consumed by the action runtime (Node 24).
 
 ### Setup
 
@@ -106,7 +106,7 @@ pnpm install
 
 ### Project layout
 
-```
+```pn
 src/
   main.ts              # Action entry point — reads inputs, fetches file, dispatches sync
   github/              # GitHub file-fetching helpers
@@ -123,11 +123,12 @@ GitHub Actions runs the bundled `dist/index.js` directly from the repo, so the
 bundle must be committed for any change you want to ship:
 
 ```bash
+pnpm upgrade --latest
 pnpm install
 pnpm all
-git add dist
+gaa
 git commit -m "chore: rebuild dist"
-git push origin main
+git push origin X
 ```
 
 Then move the version tag (e.g. `v1`) to the new commit so consumers picking up

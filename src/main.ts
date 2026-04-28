@@ -23,7 +23,7 @@ async function run(): Promise<void> {
     const postmanEnvSecret1: string = core.getInput('postmanEnvSecret1')
     const postmanEnvSecret2: string = core.getInput('postmanEnvSecret2')
     const baseUrlKeyName: string = core.getInput('baseUrlKeyName')
-    
+
     const postmanEnvSecrets = {
       postmanEnvSecret1,
       postmanEnvSecret2

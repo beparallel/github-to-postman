@@ -1,115 +1,140 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# GitHub to Postman
 
-## Description
+A GitHub Action that syncs a **Postman collection** or **environment** from a
+file (typically an OpenAPI / Swagger or Postman JSON) hosted in a GitHub
+repository into a Postman workspace.
 
-Click the `Use this Template` and provide the new repo details for your action
+It fetches the file from GitHub, optionally rewrites the `{{baseUrl}}`
+placeholder, then upserts it into Postman via the Postman API.
 
-## Getting started
+## Usage
 
-> First, you'll need to have a reasonably modern version of `node` handy. This
-> won't work with versions older than 9, for instance.
-
-Install the dependencies
-
-```bash
-$ npm install
-```
-
-Build the typescript and package it for distribution
-
-```bash
-$ npm run build && npm run package
-```
-
-Run the tests :heavy_check_mark:
-
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your
-action.
-
-See the
-[documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run
-in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the
-[toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages)
-for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder.
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-
-```bash
-$ npm install
-$ npm run build && npm run package
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a
-license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the
-[versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo
-(see [test.yml](.github/workflows/test.yml))
+Add a workflow that calls this action. Example — sync a collection on every push
+to `main`:
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+name: Sync Postman collection
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: parallel-finance/github-to-postman@v1
+        with:
+          sync: collection
+          postman-api-key: ${{ secrets.POSTMAN_API_KEY }}
+          workspace-id: ${{ secrets.POSTMAN_WORKSPACE_ID }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          githubOwner: my-org
+          githubRepo: my-api-repo
+          githubPath: openapi/spec.json
+          githubRef: main
 ```
 
-See the [actions tab](https://github.com/actions/typescript-action/actions) for
-runs of this action! :rocket:
+Sync an environment instead by setting `sync: environment` and (optionally)
+providing secrets that should be injected into the environment:
 
-## Usage:
+```yaml
+- uses: parallel-finance/github-to-postman@v1
+  with:
+    sync: environment
+    postman-api-key: ${{ secrets.POSTMAN_API_KEY }}
+    workspace-id: ${{ secrets.POSTMAN_WORKSPACE_ID }}
+    githubToken: ${{ secrets.GITHUB_TOKEN }}
+    githubOwner: my-org
+    githubRepo: my-api-repo
+    githubPath: postman/staging.environment.json
+    githubRef: main
+    postmanEnvSecret1: ${{ secrets.POSTMAN_ENV_SECRET_1 }}
+    postmanEnvSecret2: ${{ secrets.POSTMAN_ENV_SECRET_2 }}
+    baseUrlKeyName: stagingBaseUrl
+```
 
-After testing you can
-[create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-to reference the stable and latest V1 action
+### Inputs
+
+| Input               | Required | Description                                                                                                           |
+| ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `sync`              | yes      | What to sync. Either `collection` or `environment`.                                                                   |
+| `postman-api-key`   | yes      | Postman API key.                                                                                                      |
+| `workspace-id`      | yes      | ID of the Postman workspace that owns the collection / environment.                                                   |
+| `githubToken`       | yes      | Token used to read the source file from GitHub (e.g. `${{ secrets.GITHUB_TOKEN }}`).                                  |
+| `githubOwner`       | yes      | Owner of the GitHub repo containing the source file.                                                                  |
+| `githubRepo`        | yes      | Name of the GitHub repo containing the source file.                                                                   |
+| `githubPath`        | yes      | Path to the file inside that repo (e.g. `openapi/spec.json`).                                                         |
+| `githubRef`         | yes      | Git ref to read from (branch, tag, or SHA). Defaults to `main` in code.                                               |
+| `postmanEnvSecret1` | no       | Optional secret value injected into the synced environment.                                                           |
+| `postmanEnvSecret2` | no       | Optional secret value injected into the synced environment.                                                           |
+| `baseUrlKeyName`    | no       | If set, every `{{baseUrl}}` in the source file is rewritten to `{{<baseUrlKeyName>}}` before being pushed to Postman. |
+
+### Outputs
+
+| Output        | Description                                   |
+| ------------- | --------------------------------------------- |
+| `workspace`   | The workspace ID that was targeted.           |
+| `path`        | The normalized path used to fetch the file.   |
+| `fileContent` | Raw contents of the file fetched from GitHub. |
+| `error`       | Error object, if the action failed.           |
+
+## Development
+
+This project uses **pnpm** (pinned via `packageManager` in `package.json`) and
+ships a bundled `dist/index.js` consumed by the action runtime (Node 20).
+
+### Setup
+
+```bash
+pnpm install
+```
+
+> Do not run `npm install` — the project uses a pnpm-managed `node_modules` and
+> npm's tree resolver will crash on the symlinked layout.
+
+### Useful scripts
+
+| Script                     | What it does                                                                      |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `pnpm package`             | Bundle `src/main.ts` into `dist/` with `@vercel/ncc` (sourcemaps + license file). |
+| `pnpm package:watch`       | Same as `package`, in watch mode.                                                 |
+| `pnpm bundle` / `pnpm all` | Format the codebase, then re-bundle.                                              |
+| `pnpm format:write`        | Format with Prettier.                                                             |
+| `pnpm format:check`        | Check formatting without writing.                                                 |
+| `pnpm lint`                | Run ESLint with the repo config.                                                  |
+
+### Project layout
+
+```
+src/
+  main.ts              # Action entry point — reads inputs, fetches file, dispatches sync
+  github/              # GitHub file-fetching helpers
+  postman/
+    collection/sync.ts # Upsert a Postman collection
+    environment/sync.ts# Upsert a Postman environment
+action.yml             # Action metadata (inputs, runtime, entry point)
+dist/                  # Bundled output committed to the repo (consumed by Actions)
+```
+
+### Releasing
+
+GitHub Actions runs the bundled `dist/index.js` directly from the repo, so the
+bundle must be committed for any change you want to ship:
+
+```bash
+pnpm install
+pnpm all
+git add dist
+git commit -m "chore: rebuild dist"
+git push origin main
+```
+
+Then move the version tag (e.g. `v1`) to the new commit so consumers picking up
+`@v1` get the update. See the
+[action versioning guide](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+for the recommended tagging strategy.
+
+## License
+
+MIT

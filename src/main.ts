@@ -1,6 +1,9 @@
 /* eslint-disable no-shadow */
 import * as core from '@actions/core'
-import { syncCollectionWithPostman } from './postman/collection/sync'
+import {
+  getCollectionName,
+  syncCollectionWithPostman
+} from './postman/collection/sync'
 
 import { getFileFromGithub } from './github'
 import { syncEnvironmentWithPostman } from './postman/environment/sync'
@@ -39,18 +42,17 @@ async function run(): Promise<void> {
       githubRef
     })
 
-    // replace baseUrl with baseUrlKeyName in stringFileContent
-    const updatedStringFileContent = baseUrlKeyName
-      ? stringFileContent.replace(/{{baseUrl}}/g, `{{${baseUrlKeyName}}}`)
-      : stringFileContent
-    const jsonfileContent = JSON.parse(updatedStringFileContent)
+    const jsonfileContent: unknown = JSON.parse(stringFileContent)
 
     if (sync === SyncPostman.collection) {
+      core.setOutput('githubPath', githubPath)
+      const collectionName = getCollectionName(githubPath)
       await syncCollectionWithPostman({
-        githubPath,
+        collectionName,
         workspace,
         postmanApiKey,
-        jsonfileContent
+        openapiDocument: jsonfileContent as Record<string, unknown>,
+        baseUrlKeyName
       })
     } else if (sync === SyncPostman.environment) {
       await syncEnvironmentWithPostman({

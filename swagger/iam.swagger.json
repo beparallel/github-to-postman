@@ -1,0 +1,2317 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/healthcheck": {
+      "get": {
+        "operationId": "HealthcheckController_healthcheck",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "info": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "error" },
+                    "info": {
+                      "type": "object",
+                      "example": { "database": { "status": "up" } },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": { "status": "up" },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": { "status": { "type": "string" } },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Healthcheck"]
+      }
+    },
+    "/me/tenants": {
+      "get": {
+        "operationId": "GetMyTenantsController_getMyTenants",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetMyTenantsOutputDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Me", "Tenant"]
+      }
+    },
+    "/me/setup-password": {
+      "post": {
+        "operationId": "SetupPasswordController_setupPassword",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Email/password authentication added and setup email sent"
+          }
+        },
+        "tags": ["Me"]
+      }
+    },
+    "/me/current-tenant": {
+      "put": {
+        "operationId": "UpdateCurrentTenantController_updateCurrentTenant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentTenantInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "204": { "description": "" } },
+        "tags": ["Me", "Tenant"]
+      }
+    },
+    "/me": {
+      "patch": {
+        "operationId": "UpdateMeController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateMeInputDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["Me"]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "CreateUserController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserInputDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["User"]
+      },
+      "get": {
+        "operationId": "GetUsersController_getUsers",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "userIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user IDs",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search across firstName, lastName, and email",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "tenantIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tenant IDs (users in any of these tenants)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "roleIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role IDs (users with at least one membership with any of these roles)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "statuses",
+            "required": false,
+            "in": "query",
+            "description": "Filter by statuses: active (timeJoined > 0), pending (invited). Empty = all.",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "emailDomain",
+            "required": false,
+            "in": "query",
+            "description": "Filter by email domain (e.g. beparallel.com for @beparallel.com)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetUsersOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["User"]
+      }
+    },
+    "/_admin/users": {
+      "post": {
+        "description": "Creates a new user with optional memberships. Admin access only (x-api-key).",
+        "operationId": "CreateUserAdminController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateUserInputDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Create user (admin)",
+        "tags": ["User"]
+      }
+    },
+    "/_internal/users": {
+      "get": {
+        "description": "Returns users matching the given filters. Admin access only (x-api-key).",
+        "operationId": "GetUsersAdminController_getUsersAdmin",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "userIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user IDs",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search across firstName, lastName, and email",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "tenantIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tenant IDs (users in any of these tenants)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "roleIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role IDs (users with at least one membership with any of these roles)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "statuses",
+            "required": false,
+            "in": "query",
+            "description": "Filter by statuses: active (timeJoined > 0), pending (invited). Empty = all.",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "emailDomain",
+            "required": false,
+            "in": "query",
+            "description": "Filter by email domain (e.g. beparallel.com for @beparallel.com)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetUsersOutputDto" }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Get users (admin)",
+        "tags": ["User"]
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "operationId": "GetUserController_getUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetUserOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["User"]
+      },
+      "patch": {
+        "operationId": "PatchUserController_patchUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PatchUserInputDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["User"]
+      }
+    },
+    "/users/{userId}/memberships": {
+      "get": {
+        "operationId": "GetUserMembershipsController_getUserMemberships",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserMembershipsOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["User"]
+      }
+    },
+    "/tenants": {
+      "post": {
+        "operationId": "CreateTenantController_createTenant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTenantInputDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Tenant"]
+      },
+      "get": {
+        "operationId": "GetTenantsController_getTenants",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "tenantIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tenant IDs (comma-separated)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "statuses",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/TenantStatus" }
+            }
+          },
+          {
+            "name": "countries",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/Country" }
+            }
+          },
+          {
+            "name": "establishmentTypes",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/EstablishmentType" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetTenantsOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["Tenant"]
+      }
+    },
+    "/tenants/{tenantId}": {
+      "delete": {
+        "operationId": "DeleteTenantController_deleteTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Tenant"]
+      },
+      "get": {
+        "operationId": "GetTenantController_getTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetTenantOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["Tenant"]
+      },
+      "patch": {
+        "operationId": "PatchTenantController_patchTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PatchTenantInputDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["Tenant"]
+      }
+    },
+    "/tenants/public/{id}": {
+      "get": {
+        "operationId": "GetTenantByIdController_getTenantById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the tenant",
+            "schema": { "example": "my-tenant", "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": { "schema": { "type": "string" } }
+            }
+          }
+        },
+        "tags": ["Tenant"]
+      }
+    },
+    "/_internal/tenants/{tenantId}": {
+      "get": {
+        "operationId": "GetTenantInternalController_getTenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetTenantOutputDto" }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Get tenant by ID (inter-service)",
+        "tags": ["Tenant"]
+      }
+    },
+    "/_internal/tenants": {
+      "get": {
+        "operationId": "GetTenantsInternalController_getTenants",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "tenantIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tenant IDs (comma-separated)",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "statuses",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/TenantStatus" }
+            }
+          },
+          {
+            "name": "countries",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/Country" }
+            }
+          },
+          {
+            "name": "establishmentTypes",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/components/schemas/EstablishmentType" }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetTenantsOutputDto" }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "List tenants with filters (inter-service)",
+        "tags": ["Tenant"]
+      }
+    },
+    "/memberships": {
+      "post": {
+        "operationId": "CreateMembershipController_createMembership",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMembershipInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Membership"]
+      },
+      "get": {
+        "operationId": "GetMembershipsController_getMemberships",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "tenantId",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMembershipsOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Membership"]
+      }
+    },
+    "/_admin/memberships": {
+      "post": {
+        "description": "Assigns a user to a tenant with a role. Admin access only (x-api-key).",
+        "operationId": "CreateMembershipAdminController_createMembership",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMembershipInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Create membership (admin)",
+        "tags": ["Membership"]
+      }
+    },
+    "/_internal/memberships": {
+      "get": {
+        "description": "Returns memberships matching the given filters. Inter-service access only (x-api-key).",
+        "operationId": "GetMembershipsInternalController_getMemberships",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "tenantIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tenant IDs",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "roleIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role IDs",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "userIds",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user IDs",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMembershipsAdminOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Get memberships (inter-service)",
+        "tags": ["Membership"]
+      }
+    },
+    "/memberships/{membershipId}": {
+      "delete": {
+        "operationId": "DeleteMembershipController_deleteMembership",
+        "parameters": [
+          {
+            "name": "membershipId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Membership"]
+      }
+    },
+    "/_admin/roles/{roleId}/permissions": {
+      "post": {
+        "description": "Adds a permission to an existing role. Admin access only (x-api-key).",
+        "operationId": "AddPermissionToRoleAdminController_addPermissionToRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPermissionToRoleInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Add permission to role (admin)",
+        "tags": ["Role"]
+      }
+    },
+    "/roles": {
+      "post": {
+        "operationId": "CreateRoleController_createRole",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateRoleInputDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Role"]
+      },
+      "get": {
+        "operationId": "GetRolesController_getRoles",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "permissionIds",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRolesOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["Role"]
+      }
+    },
+    "/roles/{roleId}": {
+      "get": {
+        "operationId": "GetRoleController_getRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GetRoleOutputDto" }
+              }
+            }
+          }
+        },
+        "tags": ["Role"]
+      },
+      "patch": {
+        "operationId": "PatchRoleController_patchRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PatchRoleInputDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["Role"]
+      },
+      "delete": {
+        "operationId": "DeleteRoleController_deleteRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Role"]
+      }
+    },
+    "/_admin/roles/{roleId}/permissions/{permissionId}": {
+      "delete": {
+        "description": "Removes a permission from an existing role. Admin access only (x-api-key).",
+        "operationId": "RemovePermissionFromRoleAdminController_removePermissionFromRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "permissionId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Remove permission from role (admin)",
+        "tags": ["Role"]
+      }
+    },
+    "/permissions": {
+      "post": {
+        "operationId": "CreatePermissionController_createPermission",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePermissionInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Permission"]
+      },
+      "get": {
+        "operationId": "GetPermissionsController_getPermissions",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": false,
+            "in": "query",
+            "description": "Skip number",
+            "schema": { "default": 0, "example": 0, "type": "number" }
+          },
+          {
+            "name": "take",
+            "required": false,
+            "in": "query",
+            "description": "Take number",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortByKey",
+            "required": false,
+            "in": "query",
+            "description": "Sort by field",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortDirection",
+            "required": false,
+            "in": "query",
+            "description": "Sort direction",
+            "schema": { "$ref": "#/components/schemas/SortDirection" }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "description",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "domain",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/PermissionDomain" }
+          },
+          {
+            "name": "roleIds",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          },
+          {
+            "name": "isDeprecated",
+            "required": false,
+            "in": "query",
+            "description": "Filter by deprecation status",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPermissionsOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Permission"]
+      }
+    },
+    "/_admin/permissions": {
+      "post": {
+        "description": "Creates a new permission. Admin access only (x-api-key).",
+        "operationId": "CreatePermissionAdminController_createPermission",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePermissionInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Create permission (admin)",
+        "tags": ["Permission"]
+      }
+    },
+    "/permissions/{permissionId}": {
+      "get": {
+        "operationId": "GetPermissionController_getPermission",
+        "parameters": [
+          {
+            "name": "permissionId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPermissionOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Permission"]
+      },
+      "patch": {
+        "operationId": "PatchPermissionController_patchPermission",
+        "parameters": [
+          {
+            "name": "permissionId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchPermissionInputDto"
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["Permission"]
+      },
+      "delete": {
+        "operationId": "DeletePermissionController_deletePermission",
+        "parameters": [
+          {
+            "name": "permissionId",
+            "required": true,
+            "in": "path",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Permission"]
+      }
+    },
+    "/password-reset": {
+      "post": {
+        "operationId": "RequestPasswordResetController_requestPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetInputDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email sent if the account exists"
+          }
+        },
+        "tags": ["Password Reset"]
+      }
+    },
+    "/_admin/sync/clean-data-in-supertokens": {
+      "post": {
+        "description": "Finds all users with the same email and keeps only the primary user. Primary user selection: 1) User with Google login, 2) User with most tenant memberships. Tenants from secondary users are merged to the primary user, then secondary users are deleted. Run this BEFORE /sync/supertokens-to-database to clean up duplicates first. Use dryRun=true to preview changes without executing them.",
+        "operationId": "CleanDataInSupertokensController_cleanDataInSupertokens",
+        "parameters": [
+          {
+            "name": "dryRun",
+            "required": false,
+            "in": "query",
+            "description": "Preview mode - show changes without executing",
+            "schema": { "default": false, "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Duplicate cleanup completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CleanDataInSupertokensOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Clean up duplicate email accounts in Supertokens",
+        "tags": ["Sync"]
+      }
+    },
+    "/_admin/sync/configure-tenant-providers": {
+      "post": {
+        "description": "Iterates over all Supertokens tenants and configures the Google third-party provider for those that are missing it. Tenants that already have Google configured are skipped. Use dryRun=true to preview which tenants would be updated.",
+        "operationId": "ConfigureTenantProvidersController_configureTenantProviders",
+        "parameters": [
+          {
+            "name": "dryRun",
+            "required": false,
+            "in": "query",
+            "description": "Preview mode - show changes without executing",
+            "schema": { "default": false, "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant provider configuration completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigureTenantProvidersOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Configure Google OAuth provider on all existing tenants",
+        "tags": ["Sync"]
+      }
+    },
+    "/_admin/sync/supertokens-to-database": {
+      "post": {
+        "description": "Fetches all tenants, roles, permissions, users, and memberships from Supertokens and syncs them to the IAM database. WARNING: This operation DELETES all existing data before syncing. Use dryRun=true to preview what would be synced without making changes.",
+        "operationId": "SyncSupertokensToDatabaseController_syncSupertokensToDatabase",
+        "parameters": [
+          {
+            "name": "dryRun",
+            "required": false,
+            "in": "query",
+            "description": "Preview mode - show what would be synced without making changes",
+            "schema": { "default": false, "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncSupertokensToDatabaseOutputDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "x-api-key": [] }],
+        "summary": "Sync all data from Supertokens to the database",
+        "tags": ["Sync"]
+      }
+    },
+    "/seed/permissions-and-roles-descriptions": {
+      "post": {
+        "operationId": "SeedController_seedPermissionsAndRolesDescriptions",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Seed"]
+      }
+    },
+    "/_admin/seed/permissions-and-roles-descriptions": {
+      "post": {
+        "operationId": "SeedAdminController_seedPermissionsAndRolesDescriptions",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "x-api-key": [] }],
+        "tags": ["SeedAdmin"]
+      }
+    }
+  },
+  "info": {
+    "title": "iam",
+    "description": "The iam API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [{ "name": "iam", "description": "" }],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "x-api-key": { "type": "apiKey", "in": "header", "name": "x-api-key" }
+    },
+    "schemas": {
+      "GetMyTenantsOutputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Name of the tenant",
+            "example": "Hospital ABC"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant",
+            "example": "Hospital ABC"
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "UpdateCurrentTenantInputDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "description": "ID of the tenant to switch to",
+            "example": "tenant-123"
+          }
+        },
+        "required": ["tenantId"]
+      },
+      "UpdateMeInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "oldPassword": {
+            "type": "string",
+            "description": "Current password (required when changing password)",
+            "minLength": 8
+          },
+          "password": {
+            "type": "string",
+            "description": "New password for the user account",
+            "minLength": 8
+          }
+        }
+      },
+      "MembershipInputDto": {
+        "type": "object",
+        "properties": {
+          "tenantId": { "type": "string", "description": "Tenant ID" },
+          "roleId": { "type": "string", "description": "Role ID" }
+        },
+        "required": ["tenantId", "roleId"]
+      },
+      "CreateUserInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name of the user to create",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the user to create",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email of the user to create",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password for the user account (optional - if not provided, a random password is generated and user receives a reset email)",
+            "example": "SecurePassword123!",
+            "minLength": 12
+          },
+          "memberships": {
+            "description": "List of tenant memberships to assign to the user",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MembershipInputDto" }
+          }
+        },
+        "required": ["firstName", "lastName", "email"]
+      },
+      "SortDirection": { "type": "string", "enum": ["asc", "desc"] },
+      "UserMembershipRoleDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "UserMembershipTenantDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "UserMembershipDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "$ref": "#/components/schemas/UserMembershipRoleDto" },
+          "tenant": { "$ref": "#/components/schemas/UserMembershipTenantDto" }
+        },
+        "required": ["id", "role", "tenant"]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "id": { "type": "string" },
+          "memberships": {
+            "description": "User memberships (role + tenant)",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserMembershipDto" }
+          },
+          "timeJoined": {
+            "type": "number",
+            "description": "Time in MS since epoch when user first signed up"
+          }
+        },
+        "required": ["firstName", "lastName", "email", "id"]
+      },
+      "GetUsersOutputDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of records matching the query"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results beyond the current page"
+          },
+          "users": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserDto" }
+          }
+        },
+        "required": ["totalCount", "hasMore", "users"]
+      },
+      "GetUserOutputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "id": { "type": "string" },
+          "hasEmailPasswordAuth": {
+            "type": "boolean",
+            "description": "Whether the user has email/password authentication enabled"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "id",
+          "hasEmailPasswordAuth"
+        ]
+      },
+      "PatchUserInputDto": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "password": {
+            "type": "string",
+            "description": "New password for the user account",
+            "minLength": 8
+          }
+        }
+      },
+      "MembershipDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "roleId": { "type": "string" }
+        },
+        "required": ["id", "userId", "tenantId", "roleId"]
+      },
+      "GetUserMembershipsOutputDto": {
+        "type": "object",
+        "properties": {
+          "memberships": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MembershipDto" }
+          }
+        },
+        "required": ["memberships"]
+      },
+      "Country": {
+        "type": "string",
+        "enum": ["FR"],
+        "description": "Country code"
+      },
+      "EstablishmentType": {
+        "type": "string",
+        "enum": ["PUBLIC", "PRIVATE"],
+        "description": "Establishment type"
+      },
+      "TenantStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "PAUSED", "DEPRECATED"],
+        "description": "Tenant status"
+      },
+      "CreateTenantInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Tenant ID (used as Supertokens tenant identifier)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the tenant. Defaults to the id if not provided."
+          },
+          "country": {
+            "description": "Country code",
+            "allOf": [{ "$ref": "#/components/schemas/Country" }]
+          },
+          "establishmentType": {
+            "description": "Establishment type",
+            "allOf": [{ "$ref": "#/components/schemas/EstablishmentType" }]
+          },
+          "status": {
+            "description": "Tenant status",
+            "allOf": [{ "$ref": "#/components/schemas/TenantStatus" }]
+          }
+        },
+        "required": ["id", "country", "establishmentType"]
+      },
+      "GetTenantOutputDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "country": { "allOf": [{ "$ref": "#/components/schemas/Country" }] },
+          "establishmentType": {
+            "allOf": [{ "$ref": "#/components/schemas/EstablishmentType" }]
+          },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/TenantStatus" }]
+          }
+        },
+        "required": ["id", "name", "country", "establishmentType", "status"]
+      },
+      "TenantDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "country": { "allOf": [{ "$ref": "#/components/schemas/Country" }] },
+          "establishmentType": {
+            "allOf": [{ "$ref": "#/components/schemas/EstablishmentType" }]
+          },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/TenantStatus" }]
+          },
+          "userCount": {
+            "type": "number",
+            "description": "Number of users (members) in the tenant"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "country",
+          "establishmentType",
+          "status",
+          "userCount"
+        ]
+      },
+      "GetTenantsOutputDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of records matching the query"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results beyond the current page"
+          },
+          "tenants": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TenantDto" }
+          }
+        },
+        "required": ["totalCount", "hasMore", "tenants"]
+      },
+      "PatchTenantInputDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "country": { "allOf": [{ "$ref": "#/components/schemas/Country" }] },
+          "establishmentType": {
+            "allOf": [{ "$ref": "#/components/schemas/EstablishmentType" }]
+          },
+          "status": {
+            "allOf": [{ "$ref": "#/components/schemas/TenantStatus" }]
+          }
+        }
+      },
+      "CreateMembershipInputDto": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string" },
+          "tenantId": { "type": "string" },
+          "roleId": { "type": "string" }
+        },
+        "required": ["userId", "tenantId", "roleId"]
+      },
+      "GetMembershipsOutputDto": {
+        "type": "object",
+        "properties": {
+          "memberships": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MembershipDto" }
+          }
+        },
+        "required": ["memberships"]
+      },
+      "GetMembershipsAdminOutputDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of records matching the query"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results beyond the current page"
+          },
+          "memberships": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MembershipDto" }
+          }
+        },
+        "required": ["totalCount", "hasMore", "memberships"]
+      },
+      "AddPermissionToRoleInputDto": {
+        "type": "object",
+        "properties": {
+          "permissionId": {
+            "type": "string",
+            "description": "Permission ID to add to the role"
+          }
+        },
+        "required": ["permissionId"]
+      },
+      "CreateRoleInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Role ID (used as Supertokens role identifier)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the role. Defaults to the id if not provided."
+          },
+          "description": { "type": "string" },
+          "permissionIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "permissionIds"]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "permissionIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "name", "description", "permissionIds"]
+      },
+      "GetRolesOutputDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of records matching the query"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results beyond the current page"
+          },
+          "roles": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RoleDto" }
+          }
+        },
+        "required": ["totalCount", "hasMore", "roles"]
+      },
+      "GetRoleOutputDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "permissionIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["id", "name", "description", "permissionIds"]
+      },
+      "PatchRoleInputDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "permissionIds": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["description"]
+      },
+      "CreatePermissionInputDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Permission ID (used as Supertokens permission identifier)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the permission. Defaults to the id if not provided."
+          },
+          "description": { "type": "string" }
+        },
+        "required": ["id"]
+      },
+      "PermissionDomain": {
+        "type": "string",
+        "enum": [
+          "backoffice",
+          "coding",
+          "documents",
+          "dashboard",
+          "screenflow",
+          "settings",
+          "tags",
+          "technical",
+          "other"
+        ]
+      },
+      "PermissionDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "isDeprecated": { "type": "boolean" }
+        },
+        "required": ["id", "name", "description", "isDeprecated"]
+      },
+      "GetPermissionsOutputDto": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of records matching the query"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more results beyond the current page"
+          },
+          "permissions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PermissionDto" }
+          }
+        },
+        "required": ["totalCount", "hasMore", "permissions"]
+      },
+      "GetPermissionOutputDto": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "isDeprecated": { "type": "boolean" }
+        },
+        "required": ["id", "name", "description", "isDeprecated"]
+      },
+      "PatchPermissionInputDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      },
+      "RequestPasswordResetInputDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the user requesting a password reset"
+          }
+        },
+        "required": ["email"]
+      },
+      "DuplicateGroupResultDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the duplicate group"
+          },
+          "primaryUserId": {
+            "type": "string",
+            "description": "ID of the user selected as primary"
+          },
+          "primaryReason": {
+            "type": "string",
+            "description": "Reason for selecting this user as primary",
+            "enum": ["google_login", "most_tenants"]
+          },
+          "deletedUserIds": {
+            "description": "IDs of secondary users that were deleted",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "mergedTenants": {
+            "description": "Tenants that were merged to the primary user",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "rolesRemoved": {
+            "type": "number",
+            "description": "Number of extra roles removed from users in this group"
+          },
+          "errors": {
+            "description": "Errors encountered while processing this group",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": [
+          "email",
+          "primaryUserId",
+          "primaryReason",
+          "deletedUserIds",
+          "mergedTenants",
+          "rolesRemoved",
+          "errors"
+        ]
+      },
+      "MultipleRolesCleanupDetailDto": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "description": "User ID" },
+          "email": { "type": "string", "description": "User email" },
+          "tenantId": {
+            "type": "string",
+            "description": "Tenant ID where multiple roles were found"
+          },
+          "selectedRole": {
+            "type": "string",
+            "description": "Role that was kept (best role based on hierarchy: admin > tech > internal-dim > customer-dim)"
+          },
+          "removedRoles": {
+            "description": "Roles that were removed",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": [
+          "userId",
+          "email",
+          "tenantId",
+          "selectedRole",
+          "removedRoles"
+        ]
+      },
+      "DeletedUserInfoDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID that was/would be deleted"
+          },
+          "loginMethods": {
+            "description": "Login methods of the deleted user",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["userId", "loginMethods"]
+      },
+      "EmailPasswordPrimaryWarningDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "description": "Email address" },
+          "primaryUserId": {
+            "type": "string",
+            "description": "Primary user ID (email/password based)"
+          },
+          "primaryLoginMethod": {
+            "type": "string",
+            "description": "Login method of the primary user"
+          },
+          "deletedUsers": {
+            "description": "Secondary users that were/would be deleted with their login methods",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DeletedUserInfoDto" }
+          }
+        },
+        "required": [
+          "email",
+          "primaryUserId",
+          "primaryLoginMethod",
+          "deletedUsers"
+        ]
+      },
+      "CleanDataInSupertokensOutputDto": {
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean",
+            "description": "Whether this was a dry run (preview mode - no changes made)"
+          },
+          "totalUsers": {
+            "type": "number",
+            "description": "Total number of users found in Supertokens"
+          },
+          "duplicateGroups": {
+            "type": "number",
+            "description": "Number of emails with duplicate accounts"
+          },
+          "usersDeleted": {
+            "type": "number",
+            "description": "Number of secondary users deleted"
+          },
+          "rolesRemoved": {
+            "type": "number",
+            "description": "Total number of extra roles removed from users (when users had multiple roles in a tenant)"
+          },
+          "usersWithMultipleRolesCleaned": {
+            "type": "number",
+            "description": "Number of users (not part of duplicate groups) who had multiple roles cleaned"
+          },
+          "errors": {
+            "description": "Errors encountered during the process",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "details": {
+            "description": "Details for each duplicate group processed",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DuplicateGroupResultDto" }
+          },
+          "multipleRolesCleanupDetails": {
+            "description": "Details of multiple roles cleanup for all users (not part of duplicate groups)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MultipleRolesCleanupDetailDto"
+            }
+          },
+          "emailPasswordPrimaryWarnings": {
+            "description": "Warnings for groups where primary is email/password (not Google). Review these as OAuth accounts may be deleted.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailPasswordPrimaryWarningDto"
+            }
+          }
+        },
+        "required": [
+          "dryRun",
+          "totalUsers",
+          "duplicateGroups",
+          "usersDeleted",
+          "rolesRemoved",
+          "usersWithMultipleRolesCleaned",
+          "errors",
+          "details",
+          "multipleRolesCleanupDetails",
+          "emailPasswordPrimaryWarnings"
+        ]
+      },
+      "ConfigureTenantProvidersOutputDto": {
+        "type": "object",
+        "properties": {
+          "dryRun": { "type": "boolean" },
+          "totalTenants": { "type": "number" },
+          "configured": { "type": "array", "items": { "type": "string" } },
+          "skipped": { "type": "array", "items": { "type": "string" } },
+          "errors": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": [
+          "dryRun",
+          "totalTenants",
+          "configured",
+          "skipped",
+          "errors"
+        ]
+      },
+      "SyncEntityResultDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "number",
+            "description": "Number of entities successfully created"
+          },
+          "deleted": {
+            "type": "number",
+            "description": "Number of entities deleted (only for tenants, permissions, roles)"
+          },
+          "updated": {
+            "type": "number",
+            "description": "Number of entities updated (only for roles)"
+          },
+          "errors": {
+            "description": "List of error messages for failed entities",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["created", "errors"]
+      },
+      "MultipleRolesWarningDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID with multiple roles"
+          },
+          "email": { "type": "string", "description": "User email" },
+          "tenantId": {
+            "type": "string",
+            "description": "Tenant ID where the user has multiple roles"
+          },
+          "usedRole": {
+            "type": "string",
+            "description": "Role ID that was used for the membership"
+          },
+          "skippedRoles": {
+            "description": "Role IDs that were skipped",
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["userId", "email", "tenantId", "usedRole", "skippedRoles"]
+      },
+      "UserWithoutRoleWarningDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "User ID without a role"
+          },
+          "email": { "type": "string", "description": "User email" },
+          "tenantId": {
+            "type": "string",
+            "description": "Tenant ID where the user has no role"
+          }
+        },
+        "required": ["userId", "email", "tenantId"]
+      },
+      "SyncSupertokensToDatabaseOutputDto": {
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean",
+            "description": "Whether this was a dry run (preview mode - no changes made)"
+          },
+          "tenants": {
+            "description": "Tenant sync results",
+            "allOf": [{ "$ref": "#/components/schemas/SyncEntityResultDto" }]
+          },
+          "permissions": {
+            "description": "Permission sync results",
+            "allOf": [{ "$ref": "#/components/schemas/SyncEntityResultDto" }]
+          },
+          "roles": {
+            "description": "Role sync results",
+            "allOf": [{ "$ref": "#/components/schemas/SyncEntityResultDto" }]
+          },
+          "users": {
+            "description": "User sync results",
+            "allOf": [{ "$ref": "#/components/schemas/SyncEntityResultDto" }]
+          },
+          "memberships": {
+            "description": "Membership sync results",
+            "allOf": [{ "$ref": "#/components/schemas/SyncEntityResultDto" }]
+          },
+          "multipleRolesWarnings": {
+            "description": "Warnings for users with multiple roles in a tenant (only first role is used)",
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/MultipleRolesWarningDto" }
+          },
+          "usersWithoutRoleWarnings": {
+            "description": "Warnings for users without any role in a tenant (no membership created)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserWithoutRoleWarningDto"
+            }
+          }
+        },
+        "required": [
+          "dryRun",
+          "tenants",
+          "permissions",
+          "roles",
+          "users",
+          "memberships",
+          "multipleRolesWarnings",
+          "usersWithoutRoleWarnings"
+        ]
+      }
+    }
+  }
+}

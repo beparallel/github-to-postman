@@ -34,8 +34,9 @@ inputs:
   baseUrlKeyName:
     required: false
     description:
-      'If set, every {{baseUrl}} placeholder in the source file is rewritten to
-      {{<baseUrlKeyName>}} before being pushed to Postman'
+      'Collection sync only. After OpenAPI conversion, rewrite {{baseUrl}} to
+      {{<baseUrlKeyName>}} and rename the root collection variable from baseUrl
+      to baseUrlKeyName. Ignored for environment sync.'
 runs:
   using: 'node24'
   main: 'dist/index.js'

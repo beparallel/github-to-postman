@@ -32,7 +32,7 @@ async function convertOpenApiToCollection(
           reject(new Error('OpenAPI conversion returned no collection object'))
           return
         }
-        resolve(first.data as Record<string, unknown>)
+        resolve(first.data)
       }
     )
   })

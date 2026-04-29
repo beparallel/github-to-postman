@@ -32,7 +32,7 @@ describe('rewriteBaseUrl', () => {
         type: 'string'
       }
     ])
-    const item = (out.item as Array<Record<string, unknown>>)[0] as {
+    const item = (out.item as Record<string, unknown>[])[0] as {
       request: { url: Record<string, unknown> }
     }
     expect(item.request.url.raw).toBe('{{stagingBaseUrl}}/v1/users')

@@ -88,7 +88,8 @@ providing secrets that should be injected into the environment:
 ## Development
 
 This project uses **pnpm** (pinned via `packageManager` in `package.json`) and
-ships a bundled `dist/index.js` consumed by the action runtime (Node 24).
+ships a bundled ESM file `dist/index.mjs` consumed by the action runtime (Node
+24).
 
 ### Setup
 
@@ -101,17 +102,24 @@ pnpm install
 
 ### Useful scripts
 
-| Script                     | What it does                                                                      |
-| -------------------------- | --------------------------------------------------------------------------------- |
-| `pnpm package`             | Bundle `src/main.ts` into `dist/` with `@vercel/ncc` (sourcemaps + license file). |
-| `pnpm package:watch`       | Same as `package`, in watch mode.                                                 |
-| `pnpm bundle` / `pnpm all` | Format the codebase, then re-bundle.                                              |
-| `pnpm test`                | Run Vitest once (`vitest run`).                                                   |
-| `pnpm test:watch`          | Vitest in watch mode.                                                             |
-| `pnpm format:write`        | Format with Prettier.                                                             |
-| `pnpm format:check`        | Check formatting without writing.                                                 |
-| `pnpm lint`                | Run ESLint with the repo config.                                                  |
-| `pnpm sync-local`          | Developer CLI: push a **local** OpenAPI JSON to Postman (see below).              |
+| Script                     | What it does                                                            |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `pnpm package`             | Bundle `src/main.ts` to `dist/index.mjs` with Rollup (ESM, sourcemaps). |
+| `pnpm package:watch`       | Same as `package`, in watch mode.                                       |
+| `pnpm bundle` / `pnpm all` | Format the codebase, then re-bundle.                                    |
+| `pnpm test`                | Run Vitest once (`vitest run`).                                         |
+| `pnpm test:watch`          | Vitest in watch mode.                                                   |
+| `pnpm format:write`        | Format with Prettier.                                                   |
+| `pnpm format:check`        | Check formatting without writing.                                       |
+| `pnpm lint`                | Run ESLint with the repo config (`eslint.config.mjs`).                  |
+| `pnpm typecheck`           | Type-check with `tsc --noEmit`.                                         |
+| `pnpm sync-local`          | Developer CLI: push a **local** OpenAPI JSON to Postman (see below).    |
+
+### Git hooks
+
+[Husky](https://typicode.github.io/husky/) runs **`pnpm typecheck`**,
+**`pnpm lint`**, and **`pnpm test`** on every commit (via `.husky/pre-commit`).
+The `prepare` script installs hooks after `pnpm install`.
 
 ### Local testing (`sync-local`)
 
@@ -136,7 +144,7 @@ pnpm sync-local ./swagger/iam.swagger.json \
 - **`--base-url-key`**: optional; same meaning as the action’s `baseUrlKeyName`
   (omit to skip URL rewrite).
 
-The action bundle remains **`dist/index.js`** from `main.ts` only; the CLI is
+The action bundle remains **`dist/index.mjs`** from `main.ts` only; the CLI is
 **not** shipped in that bundle and uses `tsx` at dev time.
 
 ### Project layout
@@ -152,12 +160,13 @@ src/
     collection/rewriteBaseUrl.ts # {{baseUrl}} → {{baseUrlKeyName}}
     environment/sync.ts# Upsert a Postman environment
 action.yml             # Action metadata (inputs, runtime, entry point)
+rollup.config.mjs      # Rollup config for the action ESM bundle
 dist/                  # Bundled output committed to the repo (consumed by Actions)
 ```
 
 ### Releasing
 
-GitHub Actions runs the bundled `dist/index.js` directly from the repo, so the
+GitHub Actions runs the bundled `dist/index.mjs` directly from the repo, so the
 bundle must be committed for any change you want to ship:
 
 ```bash

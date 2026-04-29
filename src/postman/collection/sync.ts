@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
-/* eslint-disable sort-imports */
 import * as core from '@actions/core'
 import * as path from 'path'
 import { addCollection } from './add'
@@ -44,14 +42,16 @@ async function syncCollectionWithPostman({
   )
 
   let collection = await convertOpenApiToCollection(openapiDocument)
+  const existingInfo =
+    typeof collection.info === 'object' &&
+    collection.info !== null &&
+    !Array.isArray(collection.info)
+      ? collection.info
+      : {}
   collection = {
     ...collection,
     info: {
-      ...(typeof collection.info === 'object' &&
-      collection.info !== null &&
-      !Array.isArray(collection.info)
-        ? (collection.info as Record<string, unknown>)
-        : {}),
+      ...existingInfo,
       name: collectionName
     }
   }

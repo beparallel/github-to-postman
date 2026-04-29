@@ -16,7 +16,7 @@ declare module 'openapi-to-postmanv2' {
   export interface ConversionResult {
     result: boolean
     reason?: string
-    output?: Array<{ type: string; data: Record<string, unknown> }>
+    output?: { type: string; data: Record<string, unknown> }[]
   }
 
   export type ConvertCallback = (

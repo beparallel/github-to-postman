@@ -1,4 +1,3 @@
-/* eslint-disable no-shadow */
 import * as core from '@actions/core'
 import {
   getCollectionName,

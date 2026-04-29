@@ -1,4 +1,3 @@
-/* eslint-disable sort-imports */
 import axios from 'axios'
 
 import { Value } from './value'

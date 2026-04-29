@@ -1,4 +1,3 @@
-/* eslint-disable sort-imports */
 import * as core from '@actions/core'
 import { addEnvironment } from './add'
 import { deleteEnvironment } from './delete'
@@ -19,7 +18,7 @@ async function syncEnvironmentWithPostman({
   workspace: string
   postmanApiKey: string
   jsonfileContent: unknown
-  postmanEnvSecrets: Object
+  postmanEnvSecrets: Record<string, string>
 }): Promise<string> {
   core.setOutput('githubPath', githubPath)
   const environmentName = getEnvironmentName(githubPath)

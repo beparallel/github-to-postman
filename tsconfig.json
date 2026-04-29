@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "rootDir": "./src",
     "moduleResolution": "NodeNext",
-    "baseUrl": "./",
+    "types": ["node"],
     "sourceMap": true,
     "outDir": "./dist",
     "noImplicitAny": true,
@@ -14,5 +14,11 @@
     "skipLibCheck": true,
     "newLine": "lf"
   },
-  "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
+  "exclude": [
+    "./dist",
+    "./node_modules",
+    "./__tests__",
+    "./coverage",
+    "./vitest.config.ts"
+  ]
 }
